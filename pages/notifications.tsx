@@ -118,7 +118,7 @@ export default function NotificationsPage() {
                   <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
-                  In-App Notification Center
+                  In-App Notification Center & Activity Feed
                 </h1>
               </div>
               <p className="text-sm text-slate-400">
