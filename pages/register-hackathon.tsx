@@ -85,7 +85,7 @@ export default function HackathonRegistrationPage() {
         }))
       ],
       participationStatus: 'registered',
-      invitationCode: `HH-${Math.floor(1000 + Math.random() * 9000)}-${regType.toUpperCase()}`,
+      invitationCode: `HACK-${Math.floor(1000 + Math.random() * 9000)}-${regType.toUpperCase()}`,
       registeredAt: new Date().toISOString()
     };
 
