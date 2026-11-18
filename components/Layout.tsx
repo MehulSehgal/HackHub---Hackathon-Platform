@@ -49,6 +49,7 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Files", href: "/files", icon: FileText },
     { name: "Pitch", href: "/pitch", icon: Mic },
     { name: "Team", href: "/team", icon: Users },
+    { name: "Hackathon Reg", href: "/register-hackathon", icon: Users },
   ];
 
   const handleLogout = () => {
