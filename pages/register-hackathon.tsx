@@ -542,7 +542,7 @@ export default function HackathonRegistrationPage() {
         )}
 
         {/* Modal: Project Submission */}
-        {submittingRegId && (
+        {submittingRegId ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
             <div className="w-full max-w-2xl bg-slate-900 border border-gray-700 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b border-gray-800">
@@ -660,7 +660,7 @@ export default function HackathonRegistrationPage() {
               </form>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </Layout>
   );
