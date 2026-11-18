@@ -149,7 +149,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
       </div>
 
       {/* Notifications List */}
-      <div className="max-h-96 overflow-y-auto divide-y divide-slate-800/60">
+      <div className="max-h-96 overflow-y-auto divide-y divide-slate-800/60 transition-all">
         {filteredNotifications.length === 0 ? (
           <div className="py-12 px-4 text-center">
             <Bell className="w-8 h-8 text-slate-600 mx-auto mb-2 opacity-50" />
