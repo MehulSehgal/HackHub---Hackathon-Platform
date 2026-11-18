@@ -247,7 +247,7 @@ export default function HackathonRegistrationPage() {
             {registrations.map((reg) => (
               <div
                 key={reg.id}
-                className="p-6 rounded-2xl bg-slate-900/70 border border-gray-700/80 backdrop-blur-md space-y-4 shadow-xl"
+                className="p-6 rounded-2xl bg-slate-900/70 border border-gray-700/80 hover:border-gray-600 transition-all backdrop-blur-md space-y-4 shadow-xl"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
