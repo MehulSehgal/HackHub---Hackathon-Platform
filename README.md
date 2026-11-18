@@ -277,3 +277,8 @@ Thanks to everyone who contributes to making HackHub better!
 ## License
 
 This project is for educational and development purposes.
+
+### In-App Notification System
+- Real-time alerts for team invitations, task assignments, upcoming deadlines, team chat, and hackathon registration status updates.
+- Interactive Notification Center popover in layout with badge counters and unread filters.
+- Dedicated Notifications Management Dashboard (`/notifications`) with category filtering and simulation testing.
