@@ -175,7 +175,7 @@ export default function HackathonRegistrationPage() {
   return (
     <Layout>
       <Head>
-        <title>Hackathon Participation & Team Registration | HackHub</title>
+        <title>Hackathon Participation, Teams & Deliverables | HackHub</title>
         <meta name="description" content="Register individually or with teams, invite teammates, and submit hackathon projects." />
       </Head>
 
