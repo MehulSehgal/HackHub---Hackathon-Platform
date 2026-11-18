@@ -5,6 +5,8 @@ import {
   useState,
   useEffect,
 } from "react";
+import { InAppNotification, NotificationCategory } from "../types/notifications";
+import { INITIAL_NOTIFICATIONS } from "../data/mockNotifications";
 
 // ------------------- Types -------------------
 interface Task {
@@ -29,7 +31,7 @@ type AppContextType = {
   login: (username: string, password: string) => void;
   logout: () => void;
 
-  isInitialized: boolean; // ✅ added this line
+  isInitialized: boolean;
 
   teamName: string;
   setTeamName: (name: string) => void;
@@ -53,6 +55,16 @@ type AppContextType = {
   hackathonEndTime: Date | null;
   setHackathonEndTime: (date: Date | null) => void;
   resetHackathonTimer: () => void;
+
+  // In-app notifications
+  notifications: InAppNotification[];
+  unreadNotificationCount: number;
+  addNotification: (
+    notification: Omit<InAppNotification, "id" | "timestamp" | "read">
+  ) => void;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
+  clearAllNotifications: () => void;
 };
 
 const defaultContextValue: AppContextType = {
@@ -60,7 +72,7 @@ const defaultContextValue: AppContextType = {
   setIsAuthenticated: () => {},
   login: () => {},
   logout: () => {},
-  isInitialized: false, // ✅ added default value
+  isInitialized: false,
   teamName: "My Team",
   setTeamName: () => {},
   teamBio: "Our team is participating in a hackathon!",
@@ -79,6 +91,12 @@ const defaultContextValue: AppContextType = {
   hackathonEndTime: null,
   setHackathonEndTime: () => {},
   resetHackathonTimer: () => {},
+  notifications: [],
+  unreadNotificationCount: 0,
+  addNotification: () => {},
+  markNotificationAsRead: () => {},
+  markAllNotificationsAsRead: () => {},
+  clearAllNotifications: () => {},
 };
 
 export const AppContext = createContext<AppContextType>(defaultContextValue);
@@ -99,6 +117,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   );
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [currentUser, setCurrentUser] = useState<TeamMember | null>(null);
+
+  const [notifications, setNotifications] = useState<InAppNotification[]>(INITIAL_NOTIFICATIONS);
 
   const [tasks, setTasks] = useState<Task[]>([
     {
@@ -137,11 +157,12 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   const [hackathonEndTime, setHackathonEndTime] = useState<Date | null>(null);
 
-  // ------------------- Initialize Auth from localStorage -------------------
+  // ------------------- Initialize Auth & Notifications from localStorage -------------------
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedAuth = localStorage.getItem("isAuthenticated");
       const savedUser = localStorage.getItem("currentUser");
+      const savedNotifications = localStorage.getItem("appNotifications");
 
       if (savedAuth === "true") {
         setIsAuthenticated(true);
@@ -151,7 +172,15 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         setCurrentUser(JSON.parse(savedUser));
       }
 
-      setIsInitialized(true); // ✅ ensures app waits until localStorage is checked
+      if (savedNotifications) {
+        try {
+          setNotifications(JSON.parse(savedNotifications));
+        } catch {
+          setNotifications(INITIAL_NOTIFICATIONS);
+        }
+      }
+
+      setIsInitialized(true);
     }
   }, []);
 
@@ -165,6 +194,42 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       }
     }
   }, [isAuthenticated, isInitialized]);
+
+  // ------------------- Sync Notifications State -------------------
+  useEffect(() => {
+    if (isInitialized && typeof window !== "undefined") {
+      localStorage.setItem("appNotifications", JSON.stringify(notifications));
+    }
+  }, [notifications, isInitialized]);
+
+  // ------------------- Notification Helpers -------------------
+  const unreadNotificationCount = notifications.filter((n) => !n.read).length;
+
+  const addNotification = (
+    notification: Omit<InAppNotification, "id" | "timestamp" | "read">
+  ) => {
+    const newNotif: InAppNotification = {
+      ...notification,
+      id: `notif-${Date.now()}`,
+      timestamp: "Just now",
+      read: false,
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+  };
 
   // ------------------- Hackathon Timer Persistence -------------------
   useEffect(() => {
@@ -227,6 +292,13 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   // ------------------- Tasks & Team -------------------
   const addTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
+    // Automatically trigger task assignment notification
+    addNotification({
+      category: "task_assigned",
+      title: "Task Assigned",
+      message: `New task added: "${task.title}".`,
+      actionUrl: "/tasks",
+    });
   };
 
   const updateTask = (id: string, updates: Partial<Task>) => {
@@ -238,6 +310,13 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const addTeamMember = (member: Omit<TeamMember, "id">) => {
     const newMember = { ...member, id: `member-${Date.now()}` };
     setTeamMembers((prev) => [...prev, newMember]);
+    // Automatically trigger team join notification
+    addNotification({
+      category: "team_membership",
+      title: "Team Member Added",
+      message: `${member.name} joined as ${member.role}.`,
+      actionUrl: "/team",
+    });
   };
 
   // ------------------- Deadlines -------------------
@@ -249,6 +328,12 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         localStorage.setItem("projectDeadline", date.toISOString());
         localStorage.setItem("hackathonEndTime", date.toISOString());
       }
+      addNotification({
+        category: "task_deadline",
+        title: "Project Deadline Updated",
+        message: `Your hackathon deadline is set to ${date.toLocaleDateString()}.`,
+        actionUrl: "/dashboard",
+      });
     }
   };
 
@@ -268,7 +353,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     setIsAuthenticated,
     login,
     logout,
-    isInitialized, // ✅ added here
+    isInitialized,
     teamName,
     setTeamName,
     teamBio,
@@ -287,6 +372,12 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     hackathonEndTime,
     setHackathonEndTime,
     resetHackathonTimer,
+    notifications,
+    unreadNotificationCount,
+    addNotification,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    clearAllNotifications,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
