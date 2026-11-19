@@ -11,6 +11,8 @@ import {
   Users,
   LogOut,
   Rocket,
+
+  GraduationCap,
   Compass,
   Sparkles,
 } from "lucide-react";
@@ -49,10 +51,10 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
     { name: "Chat", href: "/chat", icon: MessageSquare },
     { name: "Files", href: "/files", icon: FileText },
-    { name: "Pitch", href: "/pitch", icon: Mic },
     { name: "Team", href: "/team", icon: Users },
+    { name: "Mentors", href: "/mentors", icon: GraduationCap },
     { name: "Hackathons", href: "/hackathons", icon: Compass },
-    { name: "AI Copilot", href: "/copilot", icon: Sparkles },
+    { name: "AI Pitch Copilot", href: "/pitch", icon: Sparkles },
   ];
 
   const handleLogout = () => {
