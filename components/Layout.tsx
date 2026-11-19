@@ -14,6 +14,10 @@ import {
   BookOpen,
   GraduationCap,
   Compass,
+<<<<<<< HEAD
+=======
+  Sparkles,
+>>>>>>> test-pr-80
   Menu,
   X,
 } from "lucide-react";
@@ -74,12 +78,10 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
     { name: "Chat", href: "/chat", icon: MessageSquare },
     { name: "Resources", href: "/resources", icon: BookOpen },
-    { name: "Pitch", href: "/pitch", icon: Mic },
     { name: "Team", href: "/team", icon: Users },
-
     { name: "Mentors", href: "/mentors", icon: GraduationCap },
     { name: "Hackathons", href: "/hackathons", icon: Compass },
-    
+    { name: "AI Pitch Copilot", href: "/pitch", icon: Sparkles },
   ];
 
   const handleLogout = () => {
