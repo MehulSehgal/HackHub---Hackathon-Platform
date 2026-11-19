@@ -12,17 +12,12 @@ import {
   Users,
   LogOut,
   Rocket,
-  Bell,
-  Menu,
-  X,
-  Compass,
-
+  BookOpen,
   GraduationCap,
   Compass,
-
+  Sparkles,
   Menu,
   X,
-  
 } from "lucide-react";
 
 interface LayoutProps {
@@ -81,14 +76,11 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
     { name: "Chat", href: "/chat", icon: MessageSquare },
-    { name: "Files", href: "/files", icon: FileText },
-    { name: "Pitch", href: "/pitch", icon: Mic },
+    { name: "Resources", href: "/resources", icon: BookOpen },
     { name: "Team", href: "/team", icon: Users },
-    { name: "Notifications", href: "/notifications", icon: Bell },
-
     { name: "Mentors", href: "/mentors", icon: GraduationCap },
     { name: "Hackathons", href: "/hackathons", icon: Compass },
-    
+    { name: "AI Pitch Copilot", href: "/pitch", icon: Sparkles },
   ];
 
   const handleLogout = () => {
