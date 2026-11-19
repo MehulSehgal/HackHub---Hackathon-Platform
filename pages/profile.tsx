@@ -181,11 +181,13 @@ export default function ProfilePage() {
     }
   };
 
+  const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/api\/?$/, "");
+
   const fetchProfile = async (fallbackUname?: string) => {
     try {
       setLoading(true);
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const res = await fetch("/api/profile/me", {
+      const res = await fetch(`${API_BASE}/api/profile/me`, {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : { "x-user-id": "demo-user" }),
@@ -249,7 +251,7 @@ export default function ProfilePage() {
 
       // 2. Persist to API
       try {
-        await fetch("/api/profile/me", {
+        await fetch(`${API_BASE}/api/profile/me`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

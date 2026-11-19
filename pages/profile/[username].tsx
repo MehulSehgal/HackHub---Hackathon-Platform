@@ -87,10 +87,12 @@ export default function PublicProfilePage() {
       }
     }
 
+    const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/api\/?$/, "");
+
     const fetchPublicProfile = async () => {
       try {
         setErrorMsg("");
-        const res = await fetch(`/api/profile/${uname}`);
+        const res = await fetch(`${API_BASE}/api/profile/${uname}`);
 
         if (res.ok) {
           const data = await res.json();
