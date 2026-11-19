@@ -13,9 +13,10 @@ import {
   LogOut,
   Rocket,
   BookOpen,
+  Sparkles,
+  User,
   GraduationCap,
   Compass,
-  Sparkles,
   Menu,
   X,
 } from "lucide-react";
@@ -81,10 +82,9 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Mentors", href: "/mentors", icon: GraduationCap },
     { name: "Hackathons", href: "/hackathons", icon: Compass },
     { name: "AI Pitch Copilot", href: "/pitch", icon: Sparkles },
+    { name: "Profile", href: "/profile", icon: User },
   ];
-
   const handleLogout = () => {
-    setIsMobileMenuOpen(false);
     logout();
     localStorage.removeItem("isAuthenticated");
     router.push("/auth");
@@ -228,17 +228,6 @@ const Layout = ({ children }: LayoutProps) => {
         </nav>
 
         <div className="mt-auto border-t border-gray-700 pt-4">
-          <div className="mb-3 flex items-center">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 text-sm">
-              👤
-            </div>
-            <div className="ml-3 min-w-0">
-              <p className="truncate font-medium">{currentUser?.name || "User"}</p>
-              <p className="truncate text-xs text-gray-400">
-                {currentUser?.role || "Team Member"}
-              </p>
-            </div>
-          </div>
           <button
             type="button"
             onClick={handleLogout}
@@ -317,18 +306,6 @@ const Layout = ({ children }: LayoutProps) => {
         </nav>
 
         <div className="mt-auto pt-4 border-t border-gray-700">
-          <div className="flex items-center mb-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-full flex items-center justify-center text-sm">
-              👤
-            </div>
-            <div className="ml-3 min-w-0">
-              <p className="truncate font-medium">{currentUser?.name || "User"}</p>
-              <p className="truncate text-xs text-gray-400">
-                {currentUser?.role || "Team Member"}
-              </p>
-            </div>
-          </div>
-
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-start px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800/50 transition-all text-sm"

@@ -11,6 +11,7 @@ const taskRoute = require("./routes/taskRoute.js");
 const askGeminiRoute = require("./routes/askGeminiRoute.js");
 const fileRoutes = require("./routes/fileRoute.js");
 const resourceRoute = require("./routes/resourceRoute.js");
+const profileRoute = require("./routes/profileRoute.js");
 
 const mentorRoute = require("./routes/mentorRoute.js");
 const hackathonRoute = require("./routes/hackathonRoute.js");
@@ -48,6 +49,7 @@ app.use("/api/tasks", taskRoute);
 app.use("/api/gemini", askGeminiRoute);
 app.use("/api/files", fileRoutes);
 app.use("/api/resources", resourceRoute);
+app.use("/api/profile", profileRoute);
 
 app.use("/api/mentors", mentorRoute);
 app.use("/api/hackathons", hackathonRoute);
