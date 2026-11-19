@@ -11,13 +11,11 @@ import {
   Users,
   LogOut,
   Rocket,
-
+  BookOpen,
   GraduationCap,
   Compass,
-
   Menu,
   X,
-  
 } from "lucide-react";
 
 interface LayoutProps {
@@ -75,7 +73,7 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
     { name: "Chat", href: "/chat", icon: MessageSquare },
-    { name: "Files", href: "/files", icon: FileText },
+    { name: "Resources", href: "/resources", icon: BookOpen },
     { name: "Pitch", href: "/pitch", icon: Mic },
     { name: "Team", href: "/team", icon: Users },
 
