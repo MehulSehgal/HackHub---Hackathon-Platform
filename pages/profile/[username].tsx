@@ -71,24 +71,42 @@ export default function PublicProfilePage() {
   useEffect(() => {
     if (!username) return;
 
+    const uname = (username as string).toLowerCase();
+
+    // 1. Immediately check local storage cache for instant sync
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem(`hackhub_profile_${uname}`) || (uname === "me" ? localStorage.getItem("hackhub_current_profile") : null);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setProfile(parsed);
+          setLoading(false);
+        } catch (e) {
+          console.error("Failed to parse cached profile", e);
+        }
+      }
+    }
+
     const fetchPublicProfile = async () => {
       try {
-        setLoading(true);
         setErrorMsg("");
-        const res = await fetch(`/api/profile/${username}`);
+        const res = await fetch(`/api/profile/${uname}`);
 
         if (res.ok) {
           const data = await res.json();
           setProfile(data);
+          if (typeof window !== "undefined") {
+            localStorage.setItem(`hackhub_profile_${uname}`, JSON.stringify(data));
+          }
         } else if (res.status === 403) {
           setErrorMsg("This student profile is private.");
         } else {
-          // If in local mock or demo mode, load fallback student profile
-          loadFallbackProfile(username as string);
+          // If in local mock or demo mode and not already loaded, fallback gracefully
+          loadFallbackProfile(uname);
         }
       } catch (err) {
         console.error(err);
-        loadFallbackProfile(username as string);
+        loadFallbackProfile(uname);
       } finally {
         setLoading(false);
       }
@@ -98,40 +116,45 @@ export default function PublicProfilePage() {
   }, [username]);
 
   const loadFallbackProfile = (uname: string) => {
-    setProfile({
-      username: uname,
-      fullName: uname === "sriramkunamsetty" ? "SriRam Kunamsetty" : uname,
-      headline: "Full Stack Engineer & Hackathon Builder",
-      bio: "Passionate software engineer building robust distributed platforms and full-stack hackathon applications. Active open-source contributor and HackHub platform architect.",
-      location: "Delhi, India",
-      education: {
-        institution: "IGDTUW / IEEE Student Branch",
-        degree: "B.Tech Computer Science",
-        graduationYear: "2026",
-      },
-      skills: ["TypeScript", "Next.js", "React", "Node.js", "MongoDB", "TailwindCSS", "Python"],
-      domainsOfInterest: ["Distributed Systems", "AI Agents", "Open Source Software", "FinTech"],
-      socialLinks: {
-        github: "https://github.com/SriRamkunamsetty",
-        linkedin: "https://linkedin.com/in/sriramkunamsetty",
-      },
-      projects: [
-        {
-          title: "HackHub Workspace",
-          description: "All-in-one hackathon management platform with team chat, task boards, and resource hub.",
-          techStack: ["Next.js", "Node.js", "MongoDB", "Socket.IO"],
-          projectUrl: "https://intern-project-igdtuw.vercel.app",
-          githubUrl: "https://github.com/SriRamkunamsetty/HackHub---Hackathon-Platform",
+    // If already populated from local storage, don't overwrite
+    setProfile((prev) => {
+      if (prev && prev.username.toLowerCase() === uname) return prev;
+      const formattedName = uname.charAt(0).toUpperCase() + uname.slice(1);
+      return {
+        username: uname,
+        fullName: formattedName,
+        headline: "Full Stack Engineer & Hackathon Builder",
+        bio: `Passionate student developer and collaborative builder on HackHub. Active in hackathons and open-source software engineering.`,
+        location: "Delhi, India",
+        education: {
+          institution: "IGDTUW / University",
+          degree: "B.Tech Computer Science",
+          graduationYear: "2026",
         },
-      ],
-      hackathons: [
-        {
-          name: "HackHub Global Hackathon 2026",
-          role: "Lead Full Stack Developer",
-          achievement: "1st Place Winner",
-          year: "2026",
+        skills: ["TypeScript", "Next.js", "React", "Node.js", "MongoDB", "TailwindCSS"],
+        domainsOfInterest: ["Distributed Systems", "AI Agents", "Open Source Software"],
+        socialLinks: {
+          github: `https://github.com/${uname}`,
+          linkedin: `https://linkedin.com/in/${uname}`,
         },
-      ],
+        projects: [
+          {
+            title: "HackHub Workspace",
+            description: "Collaborative hackathon management platform with team chat, task boards, and resource hub.",
+            techStack: ["Next.js", "Node.js", "MongoDB", "Socket.IO"],
+            projectUrl: "https://intern-project-igdtuw.vercel.app",
+            githubUrl: `https://github.com/${uname}/HackHub---Hackathon-Platform`,
+          },
+        ],
+        hackathons: [
+          {
+            name: "HackHub Global Hackathon 2026",
+            role: "Full Stack Developer",
+            achievement: "Top Participant",
+            year: "2026",
+          },
+        ],
+      };
     });
   };
 

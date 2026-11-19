@@ -12,6 +12,8 @@ import {
   LogOut,
   Rocket,
   User,
+  GraduationCap,
+  Compass,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -50,6 +52,8 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Files", href: "/files", icon: FileText },
     { name: "Pitch", href: "/pitch", icon: Mic },
     { name: "Team", href: "/team", icon: Users },
+    { name: "Mentors", href: "/mentors", icon: GraduationCap },
+    { name: "Hackathons", href: "/hackathons", icon: Compass },
     { name: "Profile", href: "/profile", icon: User },
   ];
 

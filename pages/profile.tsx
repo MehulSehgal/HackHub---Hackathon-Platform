@@ -46,16 +46,16 @@ export default function ProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Form states
-  const [username, setUsername] = useState("sriramkunamsetty");
-  const [fullName, setFullName] = useState("SriRam Kunamsetty");
-  const [headline, setHeadline] = useState("Full Stack Developer | AI & Open Source Enthusiast");
+  // Form states - dynamically derived from currentUser
+  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [headline, setHeadline] = useState("Full Stack Developer & Hackathon Innovator");
   const [bio, setBio] = useState(
-    "Passionate software engineer building robust distributed platforms and full-stack hackathon applications. IEEE student contributor and open-source enthusiast."
+    "Passionate software engineer building robust distributed platforms and full-stack hackathon applications."
   );
   const [avatarUrl, setAvatarUrl] = useState("");
   const [location, setLocation] = useState("Delhi, India");
-  const [institution, setInstitution] = useState("IGDTUW / IEEE Student Chapter");
+  const [institution, setInstitution] = useState("IGDTUW / University");
   const [degree, setDegree] = useState("B.Tech Computer Science");
   const [graduationYear, setGraduationYear] = useState("2026");
 
@@ -81,10 +81,40 @@ export default function ProfilePage() {
   const [newDomain, setNewDomain] = useState("");
 
   // Socials
-  const [githubUrl, setGithubUrl] = useState("https://github.com/SriRamkunamsetty");
-  const [linkedinUrl, setLinkedinUrl] = useState("https://linkedin.com/in/sriramkunamsetty");
+  const [githubUrl, setGithubUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [twitterUrl, setTwitterUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
+
+  // Initialize or pre-fill from currentUser & localStorage
+  useEffect(() => {
+    const rawName = currentUser?.name || currentUser?.username || "Student Hacker";
+    const initialUname = (currentUser?.username || rawName.toLowerCase().replace(/\s+/g, "")).toLowerCase();
+    
+    // Check localStorage first
+    let loadedFromLocal = false;
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("hackhub_current_profile") || localStorage.getItem(`hackhub_profile_${initialUname}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          applyProfileData(parsed);
+          loadedFromLocal = true;
+        } catch (e) {
+          console.error("Failed to parse cached profile", e);
+        }
+      }
+    }
+
+    if (!loadedFromLocal) {
+      setUsername(initialUname);
+      setFullName(rawName);
+      if (currentUser?.email) setBio(`Passionate developer (${currentUser.email}) building innovative projects on HackHub.`);
+      if (currentUser?.username) setGithubUrl(`https://github.com/${currentUser.username}`);
+    }
+
+    fetchProfile(initialUname);
+  }, [currentUser]);
 
   // Projects & Hackathons
   const [projects, setProjects] = useState<ProjectItem[]>([
@@ -119,11 +149,39 @@ export default function ProfilePage() {
   const [projLive, setProjLive] = useState("");
   const [projGh, setProjGh] = useState("");
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const applyProfileData = (data: any) => {
+    if (!data) return;
+    if (data.username) setUsername(data.username);
+    if (data.fullName) setFullName(data.fullName);
+    if (data.headline) setHeadline(data.headline);
+    if (data.bio) setBio(data.bio);
+    if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+    if (data.location) setLocation(data.location);
+    if (data.education) {
+      setInstitution(data.education.institution || "");
+      setDegree(data.education.degree || "");
+      setGraduationYear(data.education.graduationYear || "");
+    }
+    if (Array.isArray(data.skills) && data.skills.length > 0) setSkills(data.skills);
+    if (Array.isArray(data.domainsOfInterest) && data.domainsOfInterest.length > 0)
+      setDomains(data.domainsOfInterest);
+    if (data.socialLinks) {
+      setGithubUrl(data.socialLinks.github || "");
+      setLinkedinUrl(data.socialLinks.linkedin || "");
+      setTwitterUrl(data.socialLinks.twitter || "");
+      setPortfolioUrl(data.socialLinks.portfolio || "");
+    }
+    if (Array.isArray(data.projects)) setProjects(data.projects);
+    if (Array.isArray(data.hackathons)) setHackathons(data.hackathons);
+    if (data.privacySettings) {
+      setIsPublic(data.privacySettings.isPublic ?? true);
+      setShowEmail(data.privacySettings.showEmail ?? false);
+      setShowProjects(data.privacySettings.showProjects ?? true);
+      setShowHackathons(data.privacySettings.showHackathons ?? true);
+    }
+  };
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (fallbackUname?: string) => {
     try {
       setLoading(true);
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -136,37 +194,16 @@ export default function ProfilePage() {
 
       if (res.ok) {
         const data = await res.json();
-        if (data.username) setUsername(data.username);
-        if (data.fullName) setFullName(data.fullName);
-        if (data.headline) setHeadline(data.headline);
-        if (data.bio) setBio(data.bio);
-        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
-        if (data.location) setLocation(data.location);
-        if (data.education) {
-          setInstitution(data.education.institution || "");
-          setDegree(data.education.degree || "");
-          setGraduationYear(data.education.graduationYear || "");
-        }
-        if (Array.isArray(data.skills) && data.skills.length > 0) setSkills(data.skills);
-        if (Array.isArray(data.domainsOfInterest) && data.domainsOfInterest.length > 0)
-          setDomains(data.domainsOfInterest);
-        if (data.socialLinks) {
-          setGithubUrl(data.socialLinks.github || "");
-          setLinkedinUrl(data.socialLinks.linkedin || "");
-          setTwitterUrl(data.socialLinks.twitter || "");
-          setPortfolioUrl(data.socialLinks.portfolio || "");
-        }
-        if (Array.isArray(data.projects)) setProjects(data.projects);
-        if (Array.isArray(data.hackathons)) setHackathons(data.hackathons);
-        if (data.privacySettings) {
-          setIsPublic(data.privacySettings.isPublic ?? true);
-          setShowEmail(data.privacySettings.showEmail ?? false);
-          setShowProjects(data.privacySettings.showProjects ?? true);
-          setShowHackathons(data.privacySettings.showHackathons ?? true);
+        applyProfileData(data);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("hackhub_current_profile", JSON.stringify(data));
+          if (data.username) {
+            localStorage.setItem(`hackhub_profile_${data.username.toLowerCase()}`, JSON.stringify(data));
+          }
         }
       }
     } catch (err) {
-      console.error("Failed to fetch profile", err);
+      console.error("Failed to fetch profile from API, utilizing local cache", err);
     } finally {
       setLoading(false);
     }
@@ -176,10 +213,11 @@ export default function ProfilePage() {
     e.preventDefault();
     try {
       setSaving(true);
+      const cleanUsername = (username || "hacker").toLowerCase().trim();
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const payload = {
-        username: username.toLowerCase().trim(),
-        fullName,
+        username: cleanUsername,
+        fullName: fullName || "Student Hacker",
         headline,
         bio,
         avatarUrl,
@@ -203,19 +241,28 @@ export default function ProfilePage() {
         },
       };
 
-      const res = await fetch("/api/profile/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : { "x-user-id": "demo-user" }),
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
+      // 1. Immediately persist to localStorage for instant local preview & fallback
+      if (typeof window !== "undefined") {
+        localStorage.setItem("hackhub_current_profile", JSON.stringify(payload));
+        localStorage.setItem(`hackhub_profile_${cleanUsername}`, JSON.stringify(payload));
       }
+
+      // 2. Persist to API
+      try {
+        await fetch("/api/profile/me", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : { "x-user-id": "demo-user" }),
+          },
+          body: JSON.stringify(payload),
+        });
+      } catch (apiErr) {
+        console.warn("API save failed, local storage fallback active", apiErr);
+      }
+
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       console.error("Failed to save profile", err);
     } finally {
