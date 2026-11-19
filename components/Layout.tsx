@@ -2,7 +2,6 @@ import React, { ReactNode, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAppContext } from "../context/AppContext";
-import { NotificationCenter } from "./NotificationCenter";
 import {
   LayoutDashboard,
   CheckSquare,
@@ -19,6 +18,7 @@ import {
   Compass,
   Menu,
   X,
+  Bell,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -31,7 +31,6 @@ const Layout = ({ children }: LayoutProps) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isLocallyAuthenticated, setIsLocallyAuthenticated] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -84,6 +83,9 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "AI Pitch Copilot", href: "/pitch", icon: Sparkles },
     { name: "Profile", href: "/profile", icon: User },
   ];
+  const isNotificationsActive = router.pathname === "/notifications";
+  const unreadBadge = unreadNotificationCount > 99 ? "99+" : unreadNotificationCount;
+
   const handleLogout = () => {
     logout();
     localStorage.removeItem("isAuthenticated");
@@ -102,53 +104,6 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-[#0f172a] to-[#312e81] text-white">
-      {/* Mobile Top Bar */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-[#0f172a]/90 backdrop-blur-md border-b border-gray-700/80 sticky top-0 z-40">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <Rocket className="text-white w-4 h-4" />
-          </div>
-          <span className="font-bold text-lg">HackHub</span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {/* Notifications Button */}
-          <div className="relative">
-            <button
-              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 hover:text-white relative"
-              aria-label="Open notifications"
-            >
-              <Bell className="w-5 h-5 text-sky-400" />
-              {unreadNotificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-bold bg-rose-500 text-white rounded-full">
-                  {unreadNotificationCount}
-                </span>
-              )}
-            </button>
-            <NotificationCenter
-              isOpen={isNotificationsOpen}
-              onClose={() => setIsNotificationsOpen(false)}
-            />
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 hover:text-white"
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Desktop Sidebar / Mobile Drawer */}
-      <aside
-        className={`${
-          isMobileMenuOpen ? "flex" : "hidden md:flex"
-        } w-full md:w-64 h-auto md:h-screen bg-[#0f172a]/80 backdrop-blur-md border-r border-gray-700/80 p-4 flex-col fixed md:sticky top-0 z-30 overflow-y-auto`}
-      >
-        <div className="mb-6 text-center hidden md:block">
       <header className="md:hidden sticky top-0 z-30 flex items-center justify-between border-b border-gray-700/60 bg-[#0f172a]/95 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 shadow-md">
@@ -156,16 +111,37 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
           <span className="text-lg font-semibold tracking-tight">HackHub</span>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
-          className="rounded-lg p-2 text-gray-300 transition-colors hover:bg-gray-800/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
-          aria-controls="mobile-navigation"
-          aria-expanded={isMobileMenuOpen}
-          aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-        >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <Link
+            href="/notifications"
+            aria-label={
+              unreadNotificationCount > 0
+                ? `Notifications, ${unreadNotificationCount} unread`
+                : "Notifications"
+            }
+            aria-current={isNotificationsActive ? "page" : undefined}
+            className={`relative rounded-lg p-2 transition-colors hover:bg-gray-800/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 ${
+              isNotificationsActive ? "text-cyan-300" : "text-gray-300"
+            }`}
+          >
+            <Bell className="h-6 w-6" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 min-w-[18px] rounded-full bg-rose-500 px-1 text-center text-[10px] font-bold leading-[18px] text-white">
+                {unreadBadge}
+              </span>
+            )}
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+            className="rounded-lg p-2 text-gray-300 transition-colors hover:bg-gray-800/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            aria-controls="mobile-navigation"
+            aria-expanded={isMobileMenuOpen}
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </header>
 
       {isMobileMenuOpen && (
@@ -249,32 +225,31 @@ const Layout = ({ children }: LayoutProps) => {
           <p className="text-sm text-zinc-300 mt-1">Innovate. Collaborate. Launch.</p>
         </div>
 
-        {/* Desktop Notification Bell Header Trigger */}
-        <div className="hidden md:block mb-4 relative">
-          <button
-            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-slate-200 transition-all text-xs font-medium"
-          >
-            <div className="flex items-center space-x-2">
-              <Bell className="w-4 h-4 text-sky-400" />
-              <span>Notifications</span>
-            </div>
-            {unreadNotificationCount > 0 ? (
-              <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold text-[10px]">
-                {unreadNotificationCount}
-              </span>
-            ) : (
-              <span className="text-slate-500 text-[11px]">All read</span>
-            )}
-          </button>
-          <NotificationCenter
-            isOpen={isNotificationsOpen}
-            onClose={() => setIsNotificationsOpen(false)}
-          />
-        </div>
+        {/* Notifications: single entry point, goes straight to the full-page Notification Center */}
+        <Link
+          href="/notifications"
+          aria-current={isNotificationsActive ? "page" : undefined}
+          className={`mb-4 flex w-full items-center justify-between rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+            isNotificationsActive
+              ? "border-cyan-500/50 bg-gradient-to-r from-cyan-600 to-purple-600 text-white"
+              : "border-slate-700/60 bg-slate-800/60 text-slate-200 hover:bg-slate-800"
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <Bell className={`h-4 w-4 ${isNotificationsActive ? "text-white" : "text-sky-400"}`} />
+            Notifications
+          </span>
+          {unreadNotificationCount > 0 ? (
+            <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              {unreadBadge}
+            </span>
+          ) : (
+            <span className="text-[11px] text-slate-500">All read</span>
+          )}
+        </Link>
 
         <nav className="flex-1">
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = router.pathname === item.href;
@@ -285,19 +260,12 @@ const Layout = ({ children }: LayoutProps) => {
                     aria-current={isActive ? "page" : undefined}
                     className={`flex items-center px-3 py-2 rounded-lg transition-all ${
                       isActive
-                        ? "bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-medium shadow-md shadow-cyan-900/20"
+                        ? "bg-gradient-to-r from-cyan-600 to-purple-600 text-white"
                         : "text-gray-300 hover:bg-gray-800/50"
                     }`}
                   >
-                    <div className="flex items-center">
-                      <Icon className="mr-3 w-5 h-5" />
-                      <span>{item.name}</span>
-                    </div>
-                    {item.name === "Notifications" && unreadNotificationCount > 0 && (
-                      <span className="px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-bold rounded-full">
-                        {unreadNotificationCount}
-                      </span>
-                    )}
+                    <Icon className="mr-3 w-5 h-5" />
+                    {item.name}
                   </Link>
                 </li>
               );
@@ -308,7 +276,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="mt-auto pt-4 border-t border-gray-700">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-start px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800/50 transition-all text-sm"
+            className="w-full flex items-center justify-start px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800/50 transition-all"
           >
             <LogOut className="mr-3 w-5 h-5" />
             Logout

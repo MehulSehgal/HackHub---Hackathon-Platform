@@ -13,6 +13,7 @@ export interface InAppNotification {
   title: string;
   message: string;
   timestamp: string;
+  createdAt?: string;
   read: boolean;
   actionUrl?: string;
   metadata?: Record<string, unknown>;
